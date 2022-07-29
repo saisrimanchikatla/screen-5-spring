@@ -22,6 +22,12 @@ public class EmployeeDocumentList {
 	    @Column(name="doc_type_id")
 	    private String doc_type_id;
 	    
+	    @Column(name="doc_location")
+	    private String doc_location;
+	    
+	    @Column(name="uploaded_date")
+	    private String uploaded_date;
+	    
 	    
 	    @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,11 +71,7 @@ public class EmployeeDocumentList {
 			this.uploaded_date = uploaded_date;
 		}
 
-		@Column(name="doc_location")
-	    private String doc_location;
-	    
-	    @Column(name="uploaded_date")
-	    private String uploaded_date;
+		
 
 	   
 	    

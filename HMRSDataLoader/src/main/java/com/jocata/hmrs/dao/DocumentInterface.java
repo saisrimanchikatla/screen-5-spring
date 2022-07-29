@@ -9,4 +9,5 @@ public interface DocumentInterface {
 	
 	public Object save(EmployeeDocumentList entity);
 	public Object getDocList(EmployeeDocumentList entity);
+	Object getDocList(String empId);
 }

@@ -31,12 +31,16 @@ public class DocumentInterfaceImpl implements DocumentInterface {
 	}
 
 	@Override
-	public List<EmployeeDocumentList> getDocList(EmployeeDocumentList entity) {
+	public Object getDocList(String empId) {
 		// TODO Auto-generated method stub
-		String hql="From DocumentType where doctype="+entity.getEmp_id();
-		List<EmployeeDocumentList> cdlist= hibernateUtils.loadEntityByHql(hql);
-		
-		return cdlist;
+		String hql="From EmployeeDoc where emp_id="+empId;
+		return hibernateUtils.loadEntityByHql(hql);
+	}
+
+	@Override
+	public Object getDocList(EmployeeDocumentList entity) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

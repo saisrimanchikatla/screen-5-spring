@@ -60,6 +60,7 @@ import com.jocata.hrms.request.UploadedDocListFormRequest;
 import com.jocata.hrms.request.UploadedDocListRequest;
 import com.jocata.hrms.response.DocList;
 import com.jocata.hrms.response.DowloadUploadedDocResponse;
+import com.jocata.hrms.response.FileFoundResponse;
 import com.jocata.hrms.response.UploadedDocListFormResponse;
 import com.jocata.hrms.response.UploadedDocListResponse;
 
@@ -194,6 +195,19 @@ public class DocumentController {
     public ResponseEntity<?> uploadFileWithParameter(@RequestParam MultipartFile file,@RequestParam Integer empId,@RequestParam String docType) throws IOException {
         System.out.println("File upload with parameter:" + file+"\n"+empId+"\n"+docType);byte[] filedataArray = null;
 		
+        boolean isfound=false;
+        
+        try {
+        	ArrayList a= (ArrayList) documentInterfaceImpl.getByDocTypeAndEmpId(Integer.parseInt(docType), empId);
+        	if (a!=null) {
+        		isfound=true;
+			}
+	    } 
+        catch (Exception e) {
+		logger.info("File/Location Not Found");
+		e.printStackTrace();
+	    }
+        
         String completeFilePath = docPath + docType + "_" + empId + ".pdf";
 		logger.info("file path"+completeFilePath);
 		Path absoluteFilePath = Paths.get(completeFilePath);
@@ -218,10 +232,13 @@ public class DocumentController {
 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 	    
 	    logger.info("file link generated");
-	    String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-    			.path(completeFilePath)
-    			.toUriString();
-    	return ResponseEntity.ok(fileDownloadUri);
+	    FileFoundResponse fileFoundresponse =new FileFoundResponse();
+	    fileFoundresponse.setDocType(docType);
+	    fileFoundresponse.setEmpId(empId.toString());
+	    fileFoundresponse.setIsfound(isfound);
+	    fileFoundresponse.setIsUploaded(!isfound);
+	    
+    	return ResponseEntity.ok(fileFoundresponse);
 	    /*JSONObject successResp = new JSONObject("{}");
 		
 		
@@ -271,4 +288,33 @@ public class DocumentController {
     	return new ResponseEntity<DowloadUploadedDocResponse>(response,HttpStatus.OK);
     	//return ResponseEntity.ok(file);
     }
+    
+    @RequestMapping(value="/get/{empId}",method=RequestMethod.GET)
+	public ResponseEntity<UploadedDocListResponse> getEmployeeDocList(@PathVariable("empId") String empId)
+	{
+		EmployeeDocumentList employeeDocumentList=new EmployeeDocumentList();
+		employeeDocumentList.setEmp_id(Integer.parseInt(empId));
+		ArrayList  e_doc_list= (ArrayList) documentInterfaceImpl.getDocList(empId);
+		
+		UploadedDocListResponse uploadedDocListResponse=new UploadedDocListResponse();
+		uploadedDocListResponse.setEmp_id(Integer.parseInt(empId));
+		
+		List<DocList> dlist=new ArrayList<DocList>();
+		if(e_doc_list!=null) {
+			uploadedDocListResponse.setStatus("Success");
+			for(int i=0;i<e_doc_list.size();i++)
+				{
+					EmployeeDoc details=(EmployeeDoc) e_doc_list.get(0);
+					String docDowloadLoc=details.getDoc_location();
+					logger.info("Got document location"+docDowloadLoc);
+				}
+		}
+		else {
+			
+		}
+		uploadedDocListResponse.setDocList(e_doc_list);
+		
+		return new ResponseEntity<UploadedDocListResponse>(uploadedDocListResponse,HttpStatus.OK);
+		
+	}
 }
